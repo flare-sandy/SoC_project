@@ -1,4 +1,4 @@
-module SA #(
+module SA #( //systolic array
     parameter data_width = 8,
     parameter num_row = 16,
     parameter num_col = 16
@@ -95,7 +95,7 @@ module SA #(
 
 integer i,j;
 
-always @(posedge clk) begin
+always_ff @(posedge clk) begin
     if(~rst_n) begin
         foreach(sum_R[m,n])
             sum_R[m][n] <= '0; 
@@ -114,7 +114,7 @@ always @(posedge clk) begin
     end
 end
 
-always @(*) begin
+always_comb begin
         if (row_out_valid == 0) begin
             row_out = '{(num_col-1){0}};
         end
