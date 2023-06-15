@@ -20,7 +20,7 @@ module PE #(
     logic signed [in_DW-1:0]  result_R_quan;
     logic signed [in_DW-1:0]  result_I_quan;
 
-    always @(posedge clk) begin
+    always_ff @(posedge clk) begin
         if(!rst_n) begin
             out_right <= {in_DW{1'b0}};
             out_down  <= {in_DW{1'b0}};
