@@ -1,4 +1,7 @@
-module sram_4k_64b(
+module sram_4k_64b
+#(
+    parameter INIT = ""
+)(
     input clk,
 
     // write port
@@ -12,7 +15,19 @@ module sram_4k_64b(
     output logic [63:0] rdata
 );
 
-logic [4095:0] mem[63:0];
+logic [63:0] mem[4096];
+
+initial begin
+    if (INIT != "") begin
+        int fp, k;
+        fp = $fopen(INIT, "r");
+        $fscanf(fp, "%d\n", k);
+        for (int i=0;i<k;i++) begin
+            $fscanf(fp, "%b\n", mem[i]);
+        end
+        $fclose(fp);
+    end
+end
 
 always_ff @(posedge clk) begin: write
     if(!csbn && !wsbn) begin
