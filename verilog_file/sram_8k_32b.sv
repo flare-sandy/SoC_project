@@ -22,7 +22,7 @@ end
 
 always_ff @(posedge clk) begin: read
     if(!csbn) begin
-        rdata <= mem[raddr]
+        rdata <= mem[raddr];
     end
 end
 
