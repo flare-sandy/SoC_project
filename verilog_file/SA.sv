@@ -1,13 +1,13 @@
 module SA #( //systolic array
     parameter data_width = 8,
-    parameter num_row = 16,
-    parameter num_col = 16
+    parameter num_row = 8,
+    parameter num_col = 8
 )
 (
     input  logic clk,
     input  logic rst_n,
     input  logic en,
-    input  logic clc       [num_row:1][num_col:1],
+    input  logic [num_row:1][num_col:1] clc,
     input  logic [data_width-1:0]  row_in  [num_row:1],
     input  logic [data_width-1:0]  col_in  [num_col:1],
     input  logic [num_row:1]       row_out_valid,
