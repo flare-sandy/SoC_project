@@ -13,22 +13,22 @@ q_In = cast(In,'like',q_type);
 q_W = cast(W,'like',q_type);
 % calculate Q K V matrix and quantify
 for i = 1:6
-    fi_QKV(:,:,i) = q_In * q_W(:,:,i);
+    fi_QKV(:,:,i) = q_In * q_W(:,:,i); % WordLength: 23; FractionLength: 6
 end
 scale_factor_QKV = -2;
 fi_QKV_scale = bitshift(fi_QKV, scale_factor_QKV); % fi_QKV >> 2
-q_QKV = cast(fi_QKV_scale,'like',q_type);
+q_QKV = cast(fi_QKV_scale,'like',q_type); % WordLength: 8; FractionLength: 3
 % calculate Q * K^T and quantify
 fi_QK(:,:,1) = q_QKV(:,:,1) * q_QKV(:,:,3)';
-fi_QK(:,:,2) = q_QKV(:,:,2) * q_QKV(:,:,4)';
+fi_QK(:,:,2) = q_QKV(:,:,2) * q_QKV(:,:,4)'; % WordLength: 22; FractionLength: 6
 scale_factor_QK = -4;
 fi_QK_scale = bitshift(fi_QK, scale_factor_QK); % fi_QK >> 4
-q_QK = cast(fi_QK_scale,'like',q_type);
+q_QK = cast(fi_QK_scale,'like',q_type); % WordLength: 8; FractionLength: 3
 % calculate QK * V and quantify
-fi_Att = [q_QK(:,:,1) * q_QKV(:,:,5) , q_QK(:,:,2) * q_QKV(:,:,6)];
+fi_Att = [q_QK(:,:,1) * q_QKV(:,:,5) , q_QK(:,:,2) * q_QKV(:,:,6)]; % WordLength: 21; FractionLength: 6
 scale_factor_Att = -4;
 fi_Att_scale = bitshift(fi_Att, scale_factor_Att); % fi_Att >> 4
-q_Att = cast(fi_Att_scale,'like',q_type);
+q_Att = cast(fi_Att_scale,'like',q_type); % WordLength: 8; FractionLength: 3
 
 %% write Input.dat
 fid=fopen('./dat_file/Input.dat','wt');
