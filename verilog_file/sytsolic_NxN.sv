@@ -15,7 +15,7 @@ module systolic_NxN
     input logic [N-1:0] [7:0] data_b,
 
     output logic [12:0] addr,
-    output logic wr_en_n, //active low
+    output logic rd_en_n, //active low
     output logic valid,
     
     output logic [N-1:0] [N-1:0] [19:0] out
@@ -174,7 +174,7 @@ end
 
 assign addr = (cnt<k_param) ? cnt:(cnt<k_param+N-1) ? cnt-k_param:0;
 
-assign wr_en_n = ((busy)&&(cnt<k_param+N-1)) ? 0:1;
+assign rd_en_n = ((busy)&&(cnt<k_param+N-1)) ? 0:1;
 
 always_comb begin: data_out
     for (int i=0;i<N;i++) begin

@@ -54,7 +54,7 @@ u_systolic (
     .data_a(rdata),
     .data_b(rdata),
     .addr(raddr),
-    .wr_en_n(csbn),
+    .rd_en_n(csbn),
     .out(out)
 );
 
