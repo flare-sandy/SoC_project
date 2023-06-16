@@ -5,4 +5,4 @@
 - [x] 耦合脉动阵列和SRAM，实现SRAM的高存储利用
 - [x] 如何使用脉动阵列计算分块矩阵乘，需要考虑一下
 
-<img src="https://github.com/flare-sandy/SoC_project/blob/main/doc/block_matmul.jpg" width="200px">
+<img src="https://github.com/flare-sandy/SoC_project/blob/main/doc/block_matmul.jpg" width="800px">
