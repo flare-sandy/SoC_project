@@ -1,12 +1,12 @@
 module systolic_NxN_tb;
 
-parameter N=4;
+parameter N=8;
 
 logic clk, rst_n;
 
 logic wsbn, csbn;
-logic [31:0] wdata, rdata;
-logic [12:0] waddr, raddr;
+logic [63:0] wdata, rdata, data_shift;
+logic [11:0] waddr, raddr;
 
 logic start, clear, done;
 logic [7:0] k_param;
@@ -20,7 +20,7 @@ initial begin
     wdata = 0;
     start = 0;
     clear = 0;
-    k_param = 6;
+    k_param = 12;
     #30;
     rst_n = 1;
     #20;
@@ -33,7 +33,7 @@ end
 
 always#10 clk = ~clk;
 
-sram_8k_32b #(.INIT("D:/temp/a.dat"))
+sram_4k_64b #(.INIT("D:/temp/a.dat"))
 u_sram_a (
     .clk(clk),
     .wsbn(wsbn),
@@ -41,6 +41,15 @@ u_sram_a (
     .csbn(csbn),
     .raddr(raddr),
     .rdata(rdata)
+);
+
+shift_array #(.N(N))
+u_shift_array (
+    .clk(clk),
+    .rst_n(rst_n),
+    .data_in(rdata),
+    .ren_n(csbn),
+    .data_out(data_shift)
 );
 
 systolic_NxN #(.N(N))
@@ -51,10 +60,12 @@ u_systolic (
     .clear(clear),
     .done(done),
     .k_param(k_param),
-    .data_a(rdata),
-    .data_b(rdata),
-    .addr(raddr),
-    .rd_en_n(csbn),
+    .data_a(data_shift),
+    .data_b(data_shift),
+    .raddr(raddr),
+    .ren_n(csbn),
+    .waddr(),
+    .wen_n(),
     .out(out)
 );
 

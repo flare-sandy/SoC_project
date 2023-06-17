@@ -14,9 +14,10 @@ module systolic_NxN
     input logic [N-1:0] [7:0] data_a,
     input logic [N-1:0] [7:0] data_b,
 
-    output logic [12:0] addr,
-    output logic rd_en_n, //active low
-    output logic valid,
+    output logic [12:0] raddr,
+    output logic [12:0] waddr,
+    output logic ren_n, //active low
+    output logic wen_n, //active low
     
     output logic [N-1:0] [N-1:0] [19:0] out
 );
@@ -160,21 +161,21 @@ end
 
 always_ff @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
-        valid <= 0;
+        wen_n <= 1;
     end 
     else begin
         if (start || clear) begin
-            valid <= 0;
+            wen_n <= 1;
         end
-        else if (cnt == N+k_param+1) begin
-            valid <= 1;
+        else if (cnt == N+k_param) begin
+            wen_n <= 0;
         end
     end
 end
 
-assign addr = (cnt<k_param) ? cnt:(cnt<k_param+N-1) ? cnt-k_param:0;
+assign raddr = (cnt<k_param) ? cnt:0;
 
-assign rd_en_n = ((busy)&&(cnt<k_param+N-1)) ? 0:1;
+assign ren_n = ((busy)&&(cnt<k_param)) ? 0:1;
 
 always_comb begin: data_out
     for (int i=0;i<N;i++) begin
