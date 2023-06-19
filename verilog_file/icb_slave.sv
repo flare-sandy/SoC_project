@@ -30,34 +30,41 @@ module icb_slave(
 
     // reg output
     output  logic            wsbn_sram_input,
+    output  logic            csbn_sram_input,
     output  logic    [11:0]  waddr_sram_input,
     output  logic    [63:0]  wdata_sram_input,
 
     output  logic            wsbn_sram_wq0,
+    output  logic            csbn_sram_wq0,
     output  logic    [11:0]  waddr_sram_wq0,
     output  logic    [63:0]  wdata_sram_wq0,
 
     output  logic            wsbn_sram_wq1,
+    output  logic            csbn_sram_wq1,
     output  logic    [11:0]  waddr_sram_wq1,
     output  logic    [63:0]  wdata_sram_wq1,
 
     output  logic            wsbn_sram_wk0,
+    output  logic            csbn_sram_wk0,
     output  logic    [11:0]  waddr_sram_wk0,
     output  logic    [63:0]  wdata_sram_wk0,
 
     output  logic            wsbn_sram_wk1,
+    output  logic            csbn_sram_wk1,
     output  logic    [11:0]  waddr_sram_wk1,
     output  logic    [63:0]  wdata_sram_wk1,
 
     output  logic            wsbn_sram_wv0,
+    output  logic            csbn_sram_wv0,
     output  logic    [11:0]  waddr_sram_wv0,
     output  logic    [63:0]  wdata_sram_wv0,
 
     output  logic            wsbn_sram_wv1,
+    output  logic            csbn_sram_wv1,
     output  logic    [11:0]  waddr_sram_wv1,
     output  logic    [63:0]  wdata_sram_wv1,
 
-    input   logic            csbn_sram_output,
+    output  logic            csbn_sram_output,
     output  logic    [11:0]  raddr_sram_output,
     input   logic    [63:0]  rdata_sram_output,
 
@@ -69,7 +76,7 @@ module icb_slave(
 assign icb_rsp_err = 1'b0;
 
 // cmd ready, icb_cmd_ready
-always@(posedge clk)
+always_ff @(posedge clk)
 begin
     if(!rst_n) begin
         icb_cmd_ready <= 1'b0;
@@ -145,71 +152,98 @@ always_ff @(posedge clk)
 begin
     if(!rst_n) begin
         {wsbn_sram_input, wsbn_sram_wq0, wsbn_sram_wq1, wsbn_sram_wk0, wsbn_sram_wk1, wsbn_sram_wv0, wsbn_sram_wv1} <= 7'b111_1111;
+        {csbn_sram_input, csbn_sram_wq0, csbn_sram_wq1, csbn_sram_wk0, csbn_sram_wk1, csbn_sram_wv0, csbn_sram_wv1} <= 7'b111_1111;
         {waddr_sram_input, waddr_sram_wq0, waddr_sram_wq1, waddr_sram_wk0, waddr_sram_wk1, waddr_sram_wv0, waddr_sram_wv1} <= 84'b0;
     end
     else begin
         if(icb_cmd_valid & icb_cmd_ready & !icb_cmd_read & (offset >= `INPUT_ADDR) & (offset < `CONTROL_ADDR)) begin
             if (offset < `WQ0_ADDR) begin
                 wsbn_sram_input <= wdata_valid ? 1'b0 : 1'b1;
+                csbn_sram_input <= wdata_valid ? 1'b0 : 1'b1;
                 waddr_sram_input <= offset - `INPUT_ADDR;
             end
             else if(offset < `WQ1_ADDR) begin
                 wsbn_sram_wq0   <= wdata_valid ? 1'b0 : 1'b1;
+                csbn_sram_wq0   <= wdata_valid ? 1'b0 : 1'b1;
                 waddr_sram_wq0  <= offset - `WQ0_ADDR;
             end
             else if(offset < `WK0_ADDR) begin
                 wsbn_sram_wq1   <= wdata_valid ? 1'b0 : 1'b1;
+                csbn_sram_wq1   <= wdata_valid ? 1'b0 : 1'b1;
                 waddr_sram_wq1  <= offset - `WQ1_ADDR;
             end
             else if(offset < `WK1_ADDR) begin
                 wsbn_sram_wk0   <= wdata_valid ? 1'b0 : 1'b1;
+                csbn_sram_wk0   <= wdata_valid ? 1'b0 : 1'b1;
                 waddr_sram_wk0  <= offset - `WK0_ADDR;
             end
             else if(offset < `WV0_ADDR) begin
                 wsbn_sram_wk1   <= wdata_valid ? 1'b0 : 1'b1;
+                csbn_sram_wk1   <= wdata_valid ? 1'b0 : 1'b1;
                 waddr_sram_wk1  <= offset - `WK1_ADDR;
             end
             else if(offset < `WV1_ADDR) begin
                 wsbn_sram_wv0   <= wdata_valid ? 1'b0 : 1'b1;
+                csbn_sram_wv0   <= wdata_valid ? 1'b0 : 1'b1;
                 waddr_sram_wv0  <= offset - `WV0_ADDR;
             end
             else if(offset < `CONTROL_ADDR) begin
                 wsbn_sram_wv1   <= wdata_valid ? 1'b0 : 1'b1;
+                csbn_sram_wv1   <= wdata_valid ? 1'b0 : 1'b1;
                 waddr_sram_wv1  <= offset - `WV1_ADDR;
             end
         end
         else begin
             {wsbn_sram_input, wsbn_sram_wq0, wsbn_sram_wq1, wsbn_sram_wk0, wsbn_sram_wk1, wsbn_sram_wv0, wsbn_sram_wv1} <= {wsbn_sram_input, wsbn_sram_wq0, wsbn_sram_wq1, wsbn_sram_wk0, wsbn_sram_wk1, wsbn_sram_wv0, wsbn_sram_wv1};
+            {csbn_sram_input, csbn_sram_wq0, csbn_sram_wq1, csbn_sram_wk0, csbn_sram_wk1, csbn_sram_wv0, csbn_sram_wv1} <= {csbn_sram_input, csbn_sram_wq0, csbn_sram_wq1, csbn_sram_wk0, csbn_sram_wk1, csbn_sram_wv0, csbn_sram_wv1};
             {waddr_sram_input, waddr_sram_wq0, waddr_sram_wq1, waddr_sram_wk0, waddr_sram_wk1, waddr_sram_wv0, waddr_sram_wv1} <= {waddr_sram_input, waddr_sram_wq0, waddr_sram_wq1, waddr_sram_wk0, waddr_sram_wk1, waddr_sram_wv0, waddr_sram_wv1};
         end
     end
 end
 
 
-// response valid, icb_rsp_valid
+// response valid, icb_rsp_valid, delay one clock
+logic icb_rsp_valid_r;
 always_ff @(posedge clk)
 begin
     if(!rst_n) begin
+        icb_rsp_valid_r <= 1'h0;
         icb_rsp_valid <= 1'h0;
     end
-    else begin
+    else if(~icb_cmd_read) begin
+        icb_rsp_valid_r <= icb_rsp_valid_r;
         if(icb_cmd_valid & icb_cmd_ready) begin
             icb_rsp_valid <= 1'h1;
         end
-        else if(icb_rsp_valid & icb_rsp_ready) begin
+        else if(icb_rsp_valid_r & icb_rsp_ready) begin
             icb_rsp_valid <= 1'h0;
         end
         else begin
             icb_rsp_valid <= icb_rsp_valid;
         end
     end
+    else begin
+        if(icb_cmd_valid & icb_cmd_ready) begin
+            icb_rsp_valid_r <= 1'h1;
+            icb_rsp_valid   <= icb_rsp_valid_r;
+        end
+        else if(icb_rsp_valid_r & icb_rsp_ready) begin
+            icb_rsp_valid_r <= 1'h0;
+            icb_rsp_valid   <= icb_rsp_valid_r;
+        end
+        else begin
+            icb_rsp_valid_r <= icb_rsp_valid_r;
+            icb_rsp_valid   <= icb_rsp_valid_r;
+        end
+    end
 end
+
 
 // read data, icb_rsp_rdata
 logic rdata_valid;
 
-assign csbn_sram_output  = (icb_cmd_valid & icb_cmd_ready & icb_cmd_read & (offset < `WQ0_ADDR)) ? 1'b0 : 1'b1;
-assign raddr_sram_output = (icb_cmd_valid & icb_cmd_ready & icb_cmd_read & (offset < `WQ0_ADDR)) ? offset : 12'b0;
+assign csbn_sram_output  = (icb_cmd_read & (offset < `WQ0_ADDR)) ? 1'b0 : 1'b1;
+assign raddr_sram_output = (icb_cmd_read & (offset < `WQ0_ADDR)) ? offset - `INPUT_ADDR : 12'b0;
 
 always_ff @(posedge clk)
 begin
@@ -218,13 +252,13 @@ begin
         rdata_valid   <= 1'h0;
     end
     else begin
-        if(icb_cmd_valid & icb_cmd_ready & icb_cmd_read & (offset >= `CONTROL_ADDR)) begin
+        if(icb_rsp_valid_r & icb_cmd_read & (offset >= `CONTROL_ADDR)) begin
             case(icb_cmd_addr[11:0])
                 `CONTROL_ADDR:  icb_rsp_rdata   <= CONTROL;
                 `STATUS_ADDR:   icb_rsp_rdata   <= STATUS;
             endcase
         end
-        else if (icb_cmd_valid & icb_cmd_ready & icb_cmd_read & (offset >= `INPUT_ADDR) & (offset < `WQ0_ADDR)) begin
+        else if (icb_rsp_valid_r & icb_cmd_read & (offset >= `INPUT_ADDR) & (offset < `WQ0_ADDR)) begin
             icb_rsp_rdata <= rdata_valid ? rdata_sram_output[63:32] : rdata_sram_output[31:0];
             rdata_valid   <= ~rdata_valid;
         end  

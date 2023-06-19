@@ -30,30 +30,37 @@ module icb_slave_tb();
 
     // reg output
     logic             wsbn_sram_input;
+    logic             csbn_sram_input;
     logic    [11:0]   waddr_sram_input;
     logic    [63:0]   wdata_sram_input;
  
     logic             wsbn_sram_wq0;
+    logic             csbn_sram_wq0;
     logic    [11:0]   waddr_sram_wq0;
     logic    [63:0]   wdata_sram_wq0;
  
     logic             wsbn_sram_wq1;
+    logic             csbn_sram_wq1;
     logic    [11:0]   waddr_sram_wq1;
     logic    [63:0]   wdata_sram_wq1;
  
     logic             wsbn_sram_wk0;
+    logic             csbn_sram_wk0;
     logic    [11:0]   waddr_sram_wk0;
     logic    [63:0]   wdata_sram_wk0;
  
     logic             wsbn_sram_wk1;
+    logic             csbn_sram_wk1;
     logic    [11:0]   waddr_sram_wk1;
     logic    [63:0]   wdata_sram_wk1;
  
     logic             wsbn_sram_wv0;
+    logic             csbn_sram_wv0;
     logic    [11:0]   waddr_sram_wv0;
     logic    [63:0]   wdata_sram_wv0;
  
     logic             wsbn_sram_wv1;
+    logic             csbn_sram_wv1;
     logic    [11:0]   waddr_sram_wv1;
     logic    [63:0]   wdata_sram_wv1;
  
@@ -71,78 +78,114 @@ initial begin
     rst_n = 0;
     #20
     rst_n = 1;
+    icb_cmd_read  = 0;
+
     #10
+    @(posedge(clk));
     icb_cmd_valid = 1;
+    icb_rsp_ready = 1;
     icb_cmd_read  = 0;
     icb_cmd_addr  = 32'h1004_2000;
     icb_cmd_wdata = 32'h1100_0011;
-    #40
-    rst_n = 1;
+    @(posedge(clk));
+    @(posedge(clk));
     icb_cmd_valid = 1;
     icb_cmd_read  = 0;
     icb_cmd_addr  = 32'h1004_2000;
     icb_cmd_wdata = 32'h0000_1111;
-    #40
-    rst_n = 1;
+    @(posedge(clk));
+    @(posedge(clk));
     icb_cmd_valid = 1;
     icb_cmd_read  = 0;
-    icb_cmd_addr  = 32'h1004_2600;
+    icb_cmd_addr  = 32'h1004_2001;
     icb_cmd_wdata = 32'h0000_1111;
-    #40
-    rst_n = 1;
+    @(posedge(clk));
+    @(posedge(clk));
     icb_cmd_valid = 1;
     icb_cmd_read  = 0;
-    icb_cmd_addr  = 32'h1004_2600;
+    icb_cmd_addr  = 32'h1004_2001;
     icb_cmd_wdata = 32'h1111_1111;
-    #40
-    rst_n = 1;
+    @(posedge(clk));
+    @(posedge(clk));
     icb_cmd_valid = 1;
     icb_cmd_read  = 0;
-    icb_cmd_addr  = 32'h1004_2601;
+    icb_cmd_addr  = 32'h1004_2002;
     icb_cmd_wdata = 32'h1000_1111;
-    #40
-    rst_n = 1;
+    @(posedge(clk));
+    @(posedge(clk));
     icb_cmd_valid = 1;
     icb_cmd_read  = 0;
-    icb_cmd_addr  = 32'h1004_2601;
+    icb_cmd_addr  = 32'h1004_2002;
     icb_cmd_wdata = 32'h0000_1111;
-    #40
-    rst_n = 1;
+    @(posedge(clk));
+    @(posedge(clk));
     icb_cmd_valid = 1;
     icb_cmd_read  = 0;
-    icb_cmd_addr  = 32'h1004_2602;
+    icb_cmd_addr  = 32'h1004_2003;
     icb_cmd_wdata = 32'h0111_1000;
-    #40
-    rst_n = 1;
+    @(posedge(clk));
+    @(posedge(clk));
     icb_cmd_valid = 1;
     icb_cmd_read  = 0;
-    icb_cmd_addr  = 32'h1004_2602;
+    icb_cmd_addr  = 32'h1004_2003;
     icb_cmd_wdata = 32'h1010_0101;
-    #40
-    rst_n = 1;
+    @(posedge(clk));
+    @(posedge(clk));
     icb_cmd_valid = 1;
     icb_cmd_read  = 0;
-    icb_cmd_addr  = 32'h1004_2603;
+    icb_cmd_addr  = 32'h1004_2004;
     icb_cmd_wdata = 32'h1010_1111;
-    #40
-    rst_n = 1;
+    @(posedge(clk));
+    @(posedge(clk));
     icb_cmd_valid = 1;
     icb_cmd_read  = 0;
-    icb_cmd_addr  = 32'h1004_2603;
+    icb_cmd_addr  = 32'h1004_2004;
     icb_cmd_wdata = 32'h0000_1011;
-    #40
-    rst_n = 1;
+    @(posedge(clk));
+    @(posedge(clk));
     icb_cmd_valid = 1;
     icb_cmd_read  = 0;
-    icb_cmd_addr  = 32'h1004_2604;
+    icb_cmd_addr  = 32'h1004_2005;
     icb_cmd_wdata = 32'h0110_1001;
-    #40
-    rst_n = 1;
+    @(posedge(clk));
+    @(posedge(clk));
     icb_cmd_valid = 1;
     icb_cmd_read  = 0;
-    icb_cmd_addr  = 32'h1004_2604;
+    icb_cmd_addr  = 32'h1004_2005;
     icb_cmd_wdata = 32'h1000_1111;
-
+    @(posedge(clk));
+    @(posedge(clk));
+    icb_cmd_valid = 1;
+    icb_rsp_ready = 1;
+    icb_cmd_read  = 1;
+    icb_cmd_addr  = 32'h1004_2003;
+    @(posedge(clk));
+    #1
+    icb_cmd_valid = 0;
+    @(posedge(clk));
+    @(posedge(clk));
+    icb_cmd_valid = 1;
+    icb_rsp_ready = 1;
+    icb_cmd_read  = 1;
+    icb_cmd_addr  = 32'h1004_2003;
+    @(posedge(clk));
+    #1
+    icb_cmd_valid = 0;
+    @(posedge(clk));
+    @(posedge(clk));
+    icb_cmd_valid = 1;
+    icb_rsp_ready = 1;
+    icb_cmd_read  = 1;
+    icb_cmd_addr  = 32'h1004_2002;
+    @(posedge(clk));
+    #1
+    icb_cmd_valid = 0;
+    @(posedge(clk));
+    @(posedge(clk));
+    icb_cmd_valid = 1;
+    icb_rsp_ready = 1;
+    icb_cmd_read  = 1;
+    icb_cmd_addr  = 32'h1004_2002;
 end
 
 icb_slave icb(
@@ -158,27 +201,42 @@ icb_slave icb(
     .icb_rsp_ready(icb_rsp_ready),
     .icb_rsp_rdata(icb_rsp_rdata),
     .icb_rsp_err(icb_rsp_err),
+
     .wsbn_sram_input(wsbn_sram_input),
+    .csbn_sram_input(csbn_sram_input),
     .waddr_sram_input(waddr_sram_input),
     .wdata_sram_input(wdata_sram_input),
+
     .wsbn_sram_wq0(wsbn_sram_wq0),
+    .csbn_sram_wq0(csbn_sram_wq0),
     .waddr_sram_wq0(waddr_sram_wq0),
     .wdata_sram_wq0(wdata_sram_wq0),
+
     .wsbn_sram_wq1(wsbn_sram_wq1),
+    .csbn_sram_wq1(csbn_sram_wq1),
     .waddr_sram_wq1(waddr_sram_wq1),
     .wdata_sram_wq1(wdata_sram_wq1),
+
     .wsbn_sram_wk0(wsbn_sram_wk0),
+    .csbn_sram_wk0(csbn_sram_wk0),
     .waddr_sram_wk0(waddr_sram_wk0),
     .wdata_sram_wk0(wdata_sram_wk0),
+
     .wsbn_sram_wk1(wsbn_sram_wk1),
+    .csbn_sram_wk1(csbn_sram_wk1),
     .waddr_sram_wk1(waddr_sram_wk1),
     .wdata_sram_wk1(wdata_sram_wk1),
+
     .wsbn_sram_wv0(wsbn_sram_wv0),
+    .csbn_sram_wv0(csbn_sram_wv0),
     .waddr_sram_wv0(waddr_sram_wv0),
     .wdata_sram_wv0(wdata_sram_wv0),
+
     .wsbn_sram_wv1(wsbn_sram_wv1),
+    .csbn_sram_wv1(csbn_sram_wv1),
     .waddr_sram_wv1(waddr_sram_wv1),
     .wdata_sram_wv1(wdata_sram_wv1),
+
     .csbn_sram_output(csbn_sram_output),
     .raddr_sram_output(raddr_sram_output),
     .rdata_sram_output(rdata_sram_output),
@@ -195,7 +253,7 @@ sram_4k_64b sram_input(
     .wdata(wdata_sram_input),
 
     //read port
-    .csbn(csbn_sram_output), //read enable, active low
+    .csbn(csbn_sram_output & csbn_sram_input), //read enable, active low
     .raddr(raddr_sram_output),
     .rdata(rdata_sram_output)
 );
