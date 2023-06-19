@@ -37,7 +37,7 @@ icb_slave u_icb_slave (
     .icb_rsp_valid(icb_rsp_valid),
     .icb_rsp_ready(icb_rsp_ready),
     .icb_rsp_rdata(icb_rsp_rdata),
-    .icb_rsp_err(icb_rsp_er),
+    .icb_rsp_err(icb_rsp_err),
 
     .STAT_REG_WR(STAT_REG_WR),
     .CONFIG_REG(CONFIG_REG),
@@ -52,6 +52,7 @@ icb_slave u_icb_slave (
 logic ren_n;
 logic [12:0] raddr_row_sram, raddr_col_sram;
 logic [63:0] rdata_row, rdata_col;
+logic [12:0] waddr, raddr_row, raddr_col;
 
 sram_4k_64b #(.INIT(INIT_ROW)) //save input data
 u_sram_row (
@@ -80,7 +81,7 @@ u_sram_col (
 assign raddr_col_sram = raddr_col + BASERDADDR_REG[27:16];
 
 logic wen_n;
-logic [12:0] waddr, raddr_row, raddr_col;
+
 logic [63:0] data_out;
 
 logic done_all;
