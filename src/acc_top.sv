@@ -22,7 +22,7 @@ module acc_top #(
 );
 
 logic [15:0] STAT_REG_WR, STAT_REG_RD;
-logic [32:0] CONFIG_REG, CALCBASE_REG;
+logic [31:0] CONFIG_REG, CALCBASE_REG, RWBASE_REG, WBBASE_REG;
 
 logic [12:0] sram_wr_addr, sram_rd_addr;
 logic [31:0] sram_wr_data, sram_rd_data;
@@ -59,38 +59,72 @@ icb_slave u_icb_slave (
 
 // STAT_REG [0]-start_all, [16]-done_all
 // CONFIG_REG [0]-out_mode, [1]-write_mode, [2]-read_mode, [3]-sram_cs, [8:15]-k_param, [16:23]-row_shape, [24:31]-col_shape
-// CALCBASE_REG [0:11]-calc_row_addr [16:27]-calc_col_addr
-// RWBASE_REG [0:11]-rw_row_addr [16:27]-rw_col_addr
+// CALCBASE_REG [0:12]-calc_row_addr [16:28]-calc_col_addr
+// RWBASE_REG [0:12]-rw_row_addr [16:28]-rw_col_addr
 
-logic ren_n, wen_n;
+logic ren_n, wen_n, csbn_row, csbn_col, wsbn_row, wsbn_col;
 logic [12:0] raddr_row_sram, raddr_col_sram;
-logic [31:0] rdata_row, rdata_col;
-logic [12:0] waddr, raddr_row, raddr_col;
+logic [31:0] rdata_row, rdata_col, wdata_row, wdata_col, data_out;
+logic [12:0] waddr, raddr_row, raddr_col, waddr_row, waddr_col;
 
-sram_8k_32b
-u_sram_dummy (
-    .clk(clk),
-    .wsbn(!sram_wr_en),
-    .waddr(sram_wr_addr),
-    .wdata(sram_wr_data),
-    .csbn({!sram_wr_en & !sram_rd_en}),
-    .raddr(sram_rd_addr),
-    .rdata(sram_rd_data)
-);
+always_comb begin
+    if (!CONFIG_REG[3]) begin //selected
+        if (CONFIG_REG[1]) begin //write_mode
+            wsbn_row = !sram_wr_en;
+            waddr_row = sram_wr_addr+RWBASE_REG[12:0];
+            wdata_row = sram_wr_data;
+        end
+        else begin // calc_mode, get data from SA
+            wsbn_row = wen_n;
+            waddr_row = waddr+STAT_REG_WR[13:1];
+            wdata_row = data_out;
+        end
+    end
+    else begin
+        wsbn_row = 1;
+        waddr_row = 0;
+        wdata_row = 0;
+    end
+end
 
+assign rd_row = CONFIG_REG[2] ? !sram_rd_en:ren_n;
+assign raddr_row_sram = CONFIG_REG[2]? sram_rd_addr+RWBASE_REG[12:0]: raddr_row + CALCBASE_REG[12:0];
+assign csbn_row = wsbn_row && rd_row;
 
 sram_8k_32b #(.INIT(INIT_ROW)) //save input data
 u_sram_row (
     .clk(clk),
-    .wsbn(1'b1),
-    .waddr('b0),
-    .wdata('b0),
-    .csbn(ren_n),
+    .wsbn(wsbn_row),
+    .waddr(waddr_row),
+    .wdata(wdata_row),
+    .csbn(csbn_row),
     .raddr(raddr_row_sram),
     .rdata(rdata_row)
 );
 
-assign raddr_row_sram = raddr_row + CALCBASE_REG[11:0];
+always_comb begin
+    if (CONFIG_REG[3]) begin //selected
+        if (CONFIG_REG[1]) begin //write_mode
+            wsbn_col = !sram_wr_en;
+            waddr_col = sram_wr_addr+RWBASE_REG[28:16];
+            wdata_col = sram_wr_data;
+        end
+        else begin // calc_mode, get data from SA
+            wsbn_col = wen_n;
+            waddr_col = waddr+STAT_REG_WR[13:1];
+            wdata_col = data_out;
+        end
+    end
+    else begin
+        wsbn_col = 1;
+        waddr_col = 0;
+        wdata_col = 0;
+    end
+end
+
+assign rd_col = CONFIG_REG[2] ? !sram_rd_en:ren_n;
+assign raddr_col_sram = CONFIG_REG[2]? sram_rd_addr+RWBASE_REG[28:16]: raddr_col + CALCBASE_REG[28:16];
+assign csbn_col = wsbn_col && rd_col;
 
 sram_8k_32b #(.INIT(INIT_COL)) //save input data
 u_sram_col (
@@ -103,9 +137,7 @@ u_sram_col (
     .rdata(rdata_col)
 );
 
-assign raddr_col_sram = raddr_col + CALCBASE_REG[27:16];
-
-logic [63:0] data_out;
+assign sram_rd_data = CONFIG_REG[3]? rdata_col:rdata_row;
 
 logic done_all;
 

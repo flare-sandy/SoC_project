@@ -151,7 +151,7 @@ always@(negedge rst_n or posedge clk) begin
         if(icb_cmd_valid & icb_cmd_ready & icb_cmd_read) begin
             if (icb_cmd_addr[11:4] == 8'h00) begin
                 case(icb_cmd_addr[3:0])
-                    `STAT_REG_ADDR      :  icb_rsp_rdata <= {STAT_REG_RD, {16'd0}};
+                    `STAT_REG_ADDR      :  icb_rsp_rdata <= {{16'd0},STAT_REG_RD};
                     `CONFIG_REG_ADDR    :  icb_rsp_rdata <= CONFIG_REG;
                     `CALCBASE_REG_ADDR  :  icb_rsp_rdata <= CALCBASE_REG;
                     `RWBASE_REG_ADDR    :  icb_rsp_rdata <= RWBASE_REG;
