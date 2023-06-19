@@ -80,7 +80,7 @@ u_sram_col (
 assign raddr_col_sram = raddr_col + BASERDADDR_REG[27:16];
 
 logic wen_n;
-logic [12:0] waddr;
+logic [12:0] waddr, raddr_row, raddr_col;
 logic [63:0] data_out;
 
 logic done_all;

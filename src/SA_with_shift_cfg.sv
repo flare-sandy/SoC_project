@@ -1,4 +1,4 @@
-module SA_with_shift #(
+module SA_with_shift_cfg #(
     parameter N = 8
 ) (
     input clk,
@@ -89,6 +89,8 @@ assign done_all = ((row_cnt == a_shape-1) && (col_cnt == b_shape-1)) ? dout_done
 assign raddr_row = out_mode ? col_cnt * k_param + raddr:row_cnt * k_param + raddr;
 assign raddr_col = out_mode ? row_cnt * k_param + raddr:col_cnt * k_param + raddr;
 
+logic [N-1:0] [7:0] temp_out, row_out, col_out;
+
 systolic_NxN_cfg #(.N(N))
 u_systolic (
     .clk(clk),
@@ -108,8 +110,6 @@ u_systolic (
     .row_out(row_out),
     .col_out(col_out)
 );
-
-logic [N-1:0] [7:0] temp_out;
 
 assign temp_out = out_mode? col_out:row_out;
 
