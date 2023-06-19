@@ -9,7 +9,6 @@
 `define CONTROL_ADDR   12'hF00
 `define STATUS_ADDR    12'hF04
 
-
 module icb_slave(
     // clk & rst_n
     input  logic             clk,
