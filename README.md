@@ -19,3 +19,18 @@
 
 需要设计的矩阵乘维度：$32 \times 96, 96\times 96$, $32\times 48, 48\times 32$, $32\times 32, 32\times 48$
 拆分后的分块乘对应的$k$维度：32，48，96
+
+需要设置的寄存器：
+start_all - 1bit
+done_all - 1bit
+write_done - 1bit
+read_done 
+
+out_mode - 1bit
+k_param - 8bit
+row_shape - 8bit
+col_shape - 8bit
+
+
+base_row - 12bit
+base_col -12bit
