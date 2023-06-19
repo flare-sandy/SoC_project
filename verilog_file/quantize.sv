@@ -2,8 +2,8 @@
 //quantize the data from 39 bit(13: integer, 26: precision) to 16 bit(8: integer, 8: precision)
 
 module quantize #(
-	parameter INPUT_DW = 23,
-	parameter INPUT_IT = 16,
+	parameter INPUT_DW = 24,
+	parameter INPUT_IT = 17,
 	parameter INPUT_PC = 6,
 
 	parameter OUTPUT_DW = 8,

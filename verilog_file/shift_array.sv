@@ -16,7 +16,7 @@ module shift_array #(
         ren_n_r <= ren_n;
     end
 
-    assign data_out[0] = data_in[0];
+    assign data_out[0] = (ren_n_r) ? 0:data_in[0];
 
     generate
         for (genvar i=1;i<N;i++) begin
