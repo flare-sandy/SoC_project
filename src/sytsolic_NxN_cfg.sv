@@ -16,8 +16,8 @@ module systolic_NxN_cfg
     input logic signed [N-1:0] [7:0] row_in,
     input logic signed [N-1:0] [7:0] col_in,
 
-    output logic [11:0] raddr,
-    output logic [11:0] waddr,
+    output logic [12:0] raddr,
+    output logic [12:0] waddr,
     output logic ren_n, //active low
     output logic wen_n, //active low
     

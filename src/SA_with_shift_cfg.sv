@@ -15,11 +15,11 @@ module SA_with_shift_cfg #(
     // SRAM read & write
     output logic ren_n,
 
-    output logic [11:0] raddr_row,
-    input  logic [63:0] rdata_row,
+    output logic [12:0] raddr_row,
+    input  logic [N-1:0] [7:0] rdata_row,
 
-    output logic [11:0] raddr_col,
-    input  logic [63:0] rdata_col,
+    output logic [12:0] raddr_col,
+    input  logic [N-1:0] [7:0] rdata_col,
 
     output logic wen_n,
     output logic [12:0] waddr,

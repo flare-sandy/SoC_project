@@ -22,7 +22,10 @@ module acc_top #(
 );
 
 logic [15:0] STAT_REG_WR, STAT_REG_RD;
-logic [32:0] CONFIG_REG, BASERDADDR_REG;
+logic [32:0] CONFIG_REG, CALCBASE_REG;
+
+logic [12:0] sram_wr_addr, sram_rd_addr;
+logic [31:0] sram_wr_data, sram_rd_data;
 
 icb_slave u_icb_slave (
     .clk(clk),
@@ -41,20 +44,42 @@ icb_slave u_icb_slave (
 
     .STAT_REG_WR(STAT_REG_WR),
     .CONFIG_REG(CONFIG_REG),
-    .BASERDADDR_REG(BASERDADDR_REG),
-    .STAT_REG_RD(STAT_REG_RD)
+    .CALCBASE_REG(CALCBASE_REG),
+    .RWBASE_REG(RWBASE_REG),
+    .STAT_REG_RD(STAT_REG_RD),
+
+    .sram_wr_data(sram_wr_data),
+    .sram_wr_addr(sram_wr_addr),
+    .sram_wr_en(sram_wr_en),
+    .sram_rd_data(sram_rd_data),
+    .sram_rd_addr(sram_rd_addr),
+    .sram_rd_en(sram_rd_en)
+
 );
 
 // STAT_REG [0]-start_all, [16]-done_all
-// CONFIG_REG [0]-out_mode, [8:15]-k_param, [16:23]-row_shape, [24:31]-col_shape
-// BASERDADDR_REG [0:11]-base_row_addr [16:27]-base_col_addr
+// CONFIG_REG [0]-out_mode, [1]-write_mode, [2]-read_mode, [3]-sram_cs, [8:15]-k_param, [16:23]-row_shape, [24:31]-col_shape
+// CALCBASE_REG [0:11]-calc_row_addr [16:27]-calc_col_addr
+// RWBASE_REG [0:11]-rw_row_addr [16:27]-rw_col_addr
 
-logic ren_n;
+logic ren_n, wen_n;
 logic [12:0] raddr_row_sram, raddr_col_sram;
-logic [63:0] rdata_row, rdata_col;
+logic [31:0] rdata_row, rdata_col;
 logic [12:0] waddr, raddr_row, raddr_col;
 
-sram_4k_64b #(.INIT(INIT_ROW)) //save input data
+sram_8k_32b
+u_sram_dummy (
+    .clk(clk),
+    .wsbn(!sram_wr_en),
+    .waddr(sram_wr_addr),
+    .wdata(sram_wr_data),
+    .csbn({!sram_wr_en & !sram_rd_en}),
+    .raddr(sram_rd_addr),
+    .rdata(sram_rd_data)
+);
+
+
+sram_8k_32b #(.INIT(INIT_ROW)) //save input data
 u_sram_row (
     .clk(clk),
     .wsbn(1'b1),
@@ -65,9 +90,9 @@ u_sram_row (
     .rdata(rdata_row)
 );
 
-assign raddr_row_sram = raddr_row + BASERDADDR_REG[11:0];
+assign raddr_row_sram = raddr_row + CALCBASE_REG[11:0];
 
-sram_4k_64b #(.INIT(INIT_COL)) //save input data
+sram_8k_32b #(.INIT(INIT_COL)) //save input data
 u_sram_col (
     .clk(clk),
     .wsbn(1'b1),
@@ -78,9 +103,7 @@ u_sram_col (
     .rdata(rdata_col)
 );
 
-assign raddr_col_sram = raddr_col + BASERDADDR_REG[27:16];
-
-logic wen_n;
+assign raddr_col_sram = raddr_col + CALCBASE_REG[27:16];
 
 logic [63:0] data_out;
 
@@ -100,7 +123,7 @@ always_ff @(posedge clk or negedge rst_n) begin
     end
 end
 
-SA_with_shift_cfg #(.N(8))
+SA_with_shift_cfg #(.N(4))
 u_SA(.clk(clk),.rst_n(rst_n),
     .start_all(STAT_REG_WR[0]),.out_mode(CONFIG_REG[0]),.done_all(done_all),
     .k_param(CONFIG_REG[15:8]),.row_shape(CONFIG_REG[23:16]),.col_shape(CONFIG_REG[31:24]),
