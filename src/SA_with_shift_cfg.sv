@@ -28,8 +28,8 @@ module SA_with_shift_cfg #(
 
 );
 
-logic [N-1:0] [7:0] shift_row, shift_wq;
-logic [12:0] raddr, raddr_input, raddr_wq;
+logic [N-1:0] [7:0] shift_row, shift_col;
+logic [12:0] raddr;
 logic [N-1:0] [23:0] sytsolic_out;
 logic [7:0] a_shape, b_shape;
 
@@ -60,18 +60,22 @@ assign start = (start_all || (dout_done && !done_all)) ? 1:0;
 assign clear = calc_done;
 
 logic [7:0] row_cnt, col_cnt;
+logic [12:0] wb_base_addr, waddr_out;
 
 always_ff @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
         row_cnt <= 0;
         col_cnt <= 0;
+        wb_base_addr <= 0;
     end
     else begin
         if (dout_done) begin
+            wb_base_addr <= wb_base_addr + N;
             if (col_cnt == b_shape-1) begin
                 col_cnt <= 0;
                 if (row_cnt == a_shape-1) begin
                     row_cnt <= 0;
+                    wb_base_addr <= 0;
                 end
                 else begin
                     row_cnt <= row_cnt + 1;
@@ -89,7 +93,7 @@ assign done_all = ((row_cnt == a_shape-1) && (col_cnt == b_shape-1)) ? dout_done
 assign raddr_row = out_mode ? col_cnt * k_param + raddr:row_cnt * k_param + raddr;
 assign raddr_col = out_mode ? row_cnt * k_param + raddr:col_cnt * k_param + raddr;
 
-logic [N-1:0] [7:0] temp_out, row_out, col_out;
+logic [N-1:0] [23:0] temp_out, row_out, col_out;
 
 systolic_NxN_cfg #(.N(N))
 u_systolic (
@@ -105,13 +109,14 @@ u_systolic (
     .col_in(shift_col),
     .raddr(raddr),
     .ren_n(ren_n),
-    .waddr(waddr),
+    .waddr(waddr_out),
     .wen_n(wen_n),
     .row_out(row_out),
     .col_out(col_out)
 );
 
 assign temp_out = out_mode? col_out:row_out;
+assign waddr = waddr_out + wb_base_addr;
 
 generate
     for (genvar i=0;i<N;i++) begin

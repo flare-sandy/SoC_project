@@ -72,7 +72,7 @@ always@(negedge rst_n or posedge clk) begin
     end
     else begin
         if(icb_cmd_valid & icb_cmd_ready & !icb_cmd_read) begin
-            if (icb_cmd_addr[11:4] == 8'h00) begin
+            if (icb_cmd_addr[4] == 0) begin
                 case(icb_cmd_addr[3:0])
                     `STAT_REG_ADDR     :     STAT_REG_WR <= icb_cmd_wdata;
                     `CONFIG_REG_ADDR   :     CONFIG_REG <= icb_cmd_wdata;
@@ -82,12 +82,12 @@ always@(negedge rst_n or posedge clk) begin
             end
             else begin
                 sram_wr_data <= icb_cmd_wdata;
-                sram_wr_addr <= icb_cmd_addr[11:4];
+                sram_wr_addr <= icb_cmd_addr[11:5];
                 sram_wr_en <= 1;
             end
         end
         else begin
-            STAT_REG_WR <= 0;
+            STAT_REG_WR <= {{2'b0}, STAT_REG_WR[13:1], {1'b0}};
             sram_wr_data <= 0;
             sram_wr_addr <= 0;
             sram_wr_en <= 0;
@@ -97,9 +97,9 @@ end
 
 always@(*) begin
     if(icb_cmd_valid & icb_cmd_ready & icb_cmd_read) begin
-        if (icb_cmd_addr[11:4] != 8'h00) begin
+        if (icb_cmd_addr[4] != 0) begin
             sram_rd_en = 1'h1;
-            sram_rd_addr = icb_cmd_addr[11:4];
+            sram_rd_addr = icb_cmd_addr[11:5];
         end
         else begin
             sram_rd_en = 1'h0;
@@ -113,12 +113,14 @@ always@(*) begin
 end
 
 reg icb_rsp_valid_r;
+reg [31:0] icb_cmd_addr_r;
 
 // response valid, icb_rsp_valid
 always@(negedge rst_n or posedge clk) begin
     if(!rst_n) begin
         icb_rsp_valid <= 1'h0;
         icb_rsp_valid_r <= 1'b0;
+        icb_cmd_addr_r <= 32'h0;
     end
     else begin
         if(icb_cmd_valid & icb_cmd_ready) begin
@@ -127,6 +129,7 @@ always@(negedge rst_n or posedge clk) begin
             end
             else begin
                 icb_rsp_valid_r <= 1'h1;
+                icb_cmd_addr_r <= icb_cmd_addr;
             end
         end
         else if(icb_rsp_valid & icb_rsp_ready) begin
@@ -134,6 +137,7 @@ always@(negedge rst_n or posedge clk) begin
         end
         else if (icb_rsp_valid_r) begin
             icb_rsp_valid_r <= 1'h0;
+            icb_cmd_addr_r <= 32'h0;
             icb_rsp_valid <= 1'h1;
         end
         else begin
@@ -148,18 +152,18 @@ always@(negedge rst_n or posedge clk) begin
         icb_rsp_rdata <= 32'h0;
     end
     else begin
-        if(icb_cmd_valid & icb_cmd_ready & icb_cmd_read) begin
-            if (icb_cmd_addr[11:4] == 8'h00) begin
-                case(icb_cmd_addr[3:0])
-                    `STAT_REG_ADDR      :  icb_rsp_rdata <= {{16'd0},STAT_REG_RD};
+        if (icb_rsp_valid_r) begin
+            if (icb_cmd_addr_r[4] == 0) begin
+                case(icb_cmd_addr_r[3:0])
+                   `STAT_REG_ADDR      :  icb_rsp_rdata <= {STAT_REG_RD,STAT_REG_WR};
                     `CONFIG_REG_ADDR    :  icb_rsp_rdata <= CONFIG_REG;
                     `CALCBASE_REG_ADDR  :  icb_rsp_rdata <= CALCBASE_REG;
                     `RWBASE_REG_ADDR    :  icb_rsp_rdata <= RWBASE_REG;
                 endcase
             end
-        end
-        else if (icb_rsp_valid_r) begin
-            icb_rsp_rdata <= sram_rd_data;
+            else begin
+                icb_rsp_rdata <= sram_rd_data;
+            end
         end
         else begin
             icb_rsp_rdata <= 32'h0;

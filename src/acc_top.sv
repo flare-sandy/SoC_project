@@ -129,10 +129,10 @@ assign csbn_col = wsbn_col && rd_col;
 sram_8k_32b #(.INIT(INIT_COL)) //save input data
 u_sram_col (
     .clk(clk),
-    .wsbn(1'b1),
-    .waddr('b0),
-    .wdata('b0),
-    .csbn(ren_n),
+    .wsbn(wsbn_col),
+    .waddr(waddr_col),
+    .wdata(wdata_col),
+    .csbn(csbn_col),
     .raddr(raddr_col_sram),
     .rdata(rdata_col)
 );

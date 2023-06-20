@@ -15,8 +15,8 @@ module quantize #(
 	output logic signed [OUTPUT_DW-1:0] quantized_data
 );
 // [19:0] 20bits
-logic [INPUT_IT+OUTPUT_PC:0] round; 
-logic carry_bit;
+logic signed [INPUT_IT+OUTPUT_PC:0] round; 
+logic signed carry_bit;
 
 // round for precision part
 assign carry_bit = ori_data[INPUT_DW-1] ? ( ori_data[INPUT_PC-OUTPUT_PC-1] & (|ori_data[INPUT_PC-OUTPUT_PC-2:0]) ) : ori_data[INPUT_PC-OUTPUT_PC-1] ;
